@@ -10,6 +10,26 @@ import java.io.PrintWriter;
 @Component
 public class FileListFromFolder {
 
+    public static  void createWriters(String dirPath,String destPath) throws IOException {
+
+        System.out.println("Inside CreateWriters ...........");
+
+        FileWriter myWriter = new FileWriter(destPath);
+        PrintWriter printWriter = new PrintWriter(myWriter);
+
+        File maindir = new File(dirPath);
+
+        if (maindir.exists() && maindir.isDirectory()) {
+            File arr[] = maindir.listFiles();
+            RecursivePrint(arr, 0, 0,printWriter);
+            myWriter.close();
+            printWriter.close();
+
+        }
+
+
+    }
+
     public static void RecursivePrint(File[] arr, int index, int level,PrintWriter printWriter) throws IOException {
         // terminate condition
         if (index == arr.length) {

@@ -18,8 +18,11 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.FileSystemResource;
 
 import java.io.File;
@@ -29,14 +32,11 @@ import java.io.PrintWriter;
 
 @Configuration
 @EnableBatchProcessing
+@Import(DataSourceAutoConfiguration.class)
 public class SpringBatchConfig {
     
     @Autowired
     FileListFromFolder fileListFromFolder;
-    @Autowired
-    FileWriter myWriter;
-    @Autowired
-    PrintWriter printWriter;
 
     @Bean
     public Job job(JobBuilderFactory jobBuilderFactory,
@@ -52,7 +52,6 @@ public class SpringBatchConfig {
                 .processor(itemProcessor)
                 .writer(itemWriter)
                 .build();
-
         System.out.println(step.toString());
 
 
@@ -62,26 +61,49 @@ public class SpringBatchConfig {
                 .build();
     }
 
+   /* @Autowired
+    private JobBuilderFactory jobs;
+
+    @Autowired
+    private StepBuilderFactory steps;
+
+    @Bean
+    public Job job(@Qualifier("step1") Step step1) {
+        return jobs.get("myJob").start(step1).build();
+    }*/
+
+   /* @Bean
+    protected Step step1(ItemReader<Folders> reader,
+                         ItemProcessor<Folders, Folders> processor,
+                         ItemWriter<Folders> writer) {
+        return steps.get("ETL-file-load")
+                .<Folders, Folders> chunk(10)
+                .reader(reader)
+                .processor(processor)
+                .writer(writer)
+                .build();
+    }*/
+
+
+
     @Bean
     public FlatFileItemReader<Folders> itemReader() throws IOException {
 
-        String maindirpath = "C:\\Users\\ankit\\Documents\\Adobe";
-        FileWriter myWriter = new FileWriter("C:\\Users\\ankit\\Downloads\\com.batchProcessing 2\\FileSystem\\src\\out.txt");
-        printWriter = new PrintWriter(myWriter);
-        File maindir = new File(maindirpath);
 
-        if (maindir.exists() && maindir.isDirectory()) {
-            File arr[] = maindir.listFiles();
-            fileListFromFolder.RecursivePrint(arr, 0, 0,printWriter);
-            myWriter.close();
-            printWriter.close();
 
-        }
+        String maindirpath = "C:\\Users\\ankit\\Documents\\OneNote Notebooks";
+        String destPath = "D:\\Study\\RCM-CLI BatchJobs\\src\\main\\resources\\out.txt";
+
+        System.out.println("ItemReader......"+maindirpath + "   " + destPath);
+
+        fileListFromFolder.createWriters(maindirpath,destPath);
 
         FlatFileItemReader<Folders> flatFileItemReader = new FlatFileItemReader<>();
-        flatFileItemReader.setResource(new FileSystemResource("D:\\Study\\spring-batch-example-1\\src\\main\\resources\\FileName.txt"));
+        flatFileItemReader.setResource(new FileSystemResource("D:\\Study\\RCM-CLI BatchJobs\\src\\main\\resources\\out.txt"));
         flatFileItemReader.setName("CSV-Reader");
         flatFileItemReader.setLineMapper(lineMapper());
+
+        System.out.println(flatFileItemReader.toString());
         return flatFileItemReader;
     }
 
