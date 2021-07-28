@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -46,11 +47,17 @@ public class SpringBatchConfig {
                    ItemWriter<Folders> itemWriter
     ) {
 
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(4);
+        taskExecutor.setMaxPoolSize(4);
+        taskExecutor.afterPropertiesSet();
+
         Step step = stepBuilderFactory.get("ETL-file-load")
-                .<Folders, Folders>chunk(3)
+                .<Folders, Folders>chunk(10)
                 .reader(itemReader)
                 .processor(itemProcessor)
                 .writer(itemWriter)
+                .taskExecutor(taskExecutor)
                 .build();
         System.out.println(step.toString());
 
@@ -91,7 +98,7 @@ public class SpringBatchConfig {
 
 
 
-        String maindirpath = "C:\\Users\\ankit\\Documents\\OneNote Notebooks";
+        String maindirpath = "C:\\Users\\ankit\\Documents\\FIFA 21";
         String destPath = "D:\\Study\\RCM-CLI BatchJobs\\src\\main\\resources\\out.txt";
 
         System.out.println("ItemReader......"+maindirpath + "   " + destPath);
@@ -113,7 +120,7 @@ public class SpringBatchConfig {
         DefaultLineMapper<Folders> defaultLineMapper = new DefaultLineMapper<>();
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
 
-        lineTokenizer.setDelimiter("\t");
+        lineTokenizer.setDelimiter("\n");
         lineTokenizer.setStrict(false);
         lineTokenizer.setNames("name");
 

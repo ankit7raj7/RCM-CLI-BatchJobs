@@ -20,9 +20,10 @@ public class Processor implements ItemProcessor<Folders, Folders> {
     @Override
     public Folders process(Folders folder) throws Exception {
         String folderName = folder.getName();
-        //String dept = DEPT_NAMES.get(deptCode);
+
         folder.setName(folderName);
-        //System.out.println(String.format("Converted from [%s] to [%s]", deptCode, dept));
+        System.out.println(folderName+" is processing .......");
+
         return folder;
     }
 }
